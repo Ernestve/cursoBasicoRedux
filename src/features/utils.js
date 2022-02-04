@@ -51,3 +51,25 @@ export const makeCrudReducer =
         return state;
     }
   };
+
+export const makeActionCreator =
+  (type, ...argNames) =>
+  (...args) => {
+    const action = { type };
+    argNames.forEach((arg, index) => {
+      action[argNames[index]] = args[index];
+    });
+    return action;
+  };
+
+export const makeAsyncTypes = (entity) => [
+  `${entity}/pending`,
+  `${entity}/fulfilled`,
+  `${entity}/rejected`,
+];
+
+export const asyncMakeActionCreator = (asyncTypes) => [
+  makeActionCreator(asyncTypes[0]),
+  makeActionCreator(asyncTypes[1], "payload"),
+  makeActionCreator(asyncTypes[2], "error"),
+];

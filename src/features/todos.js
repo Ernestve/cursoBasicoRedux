@@ -4,36 +4,20 @@ import {
   makeSetReducer,
   reduceReducers,
   makeCrudReducer,
+  makeActionCreator,
+  makeAsyncTypes,
+  asyncMakeActionCreator,
 } from "./utils";
 
 //Action creators
-export const setPending = () => {
-  return {
-    type: "todos/pending",
-  };
-};
+const asyncTodos = makeAsyncTypes("todos");
+const [setPending, setFulfilled, setError] = asyncMakeActionCreator(asyncTodos);
 
-export const setFulfilled = (payload) => ({
-  type: "todos/fulfilled",
-  payload,
-});
-
-export const setError = (e) => {
-  return { type: "todos/rejected", error: e.message };
-};
-
-export const setCompleted = (payload) => {
-  return {
-    type: "COMPLETE_TODO",
-    payload,
-  };
-};
-
-export const setFilter = (payload) => {
-  return { type: "filter", payload };
-};
+export const setCompleted = makeActionCreator("COMPLETE_TODO", "payload");
+export const setFilter = makeActionCreator("filter", "payload");
 
 //Fetch thunk de API
+
 export const fetchThunk = () => async (dispatch) => {
   dispatch(setPending());
   try {
@@ -42,18 +26,14 @@ export const fetchThunk = () => async (dispatch) => {
     const todos = data.slice(0, 10);
     dispatch(setFulfilled(todos));
   } catch (e) {
-    dispatch(setError(e));
+    dispatch(setError(e.message));
   }
 };
 
 //Reducers para filtrado
 export const filterReducer = makeSetReducer(["filter"]);
 
-export const fetchingReducer = makeFetchingReducer([
-  "todos/pending",
-  "todos/fulfilled",
-  "todos/rejected",
-]);
+export const fetchingReducer = makeFetchingReducer(asyncTodos);
 
 const fulfilledReducer = makeSetReducer(["todos/fulfilled"]);
 
